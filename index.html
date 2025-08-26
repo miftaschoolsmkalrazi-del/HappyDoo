@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>HappyDoo ✨</title>
-    <link href="https://fonts.googleapis.com/css2?family=Comic+Neue&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Comic+Neue&display=swap" rel="stylesheet" />
     <style>
         body {
             font-family: 'Comic Neue', cursive;
@@ -157,33 +157,36 @@
     <div class="todo-container">
         <p style="font-size: 1.2em;">🌟 Lakukan semua dengan smile with HappyDoo! 🍓</p>
 
-        <input type="text" id="todo-input" placeholder="🎨 how was your day...">
+        <input type="text" id="todo-input" placeholder="🎨 how was your day..." />
         <button onclick="addTodo()">➕ Tambah</button>
         <ul class="todo-list" id="todo-list"></ul>
     </div>
 
     <!-- Floating Emoji Confetti -->
     <script>
-        const emojis = ['🍭', '🍬', '🎉', '🌈', '🎀', '🧁', '🦄', '✨', '🎨', '🍓', '🌟', '🌼'];
-        for (let i = 0; i < 40; i++) {
-            const confetti = document.createElement('div');
-            confetti.classList.add('confetti');
-            confetti.innerText = emojis[Math.floor(Math.random() * emojis.length)];
-            confetti.style.left = Math.random() * 100 + "vw";
-            confetti.style.animationDuration = (5 + Math.random() * 5) + "s";
-            confetti.style.fontSize = (16 + Math.random() * 20) + "px";
-            document.body.appendChild(confetti);
-        }
+        const todoList = document.getElementById('todo-list');
+        const input = document.getElementById('todo-input');
+
+        // Ambil data dari localStorage saat halaman dibuka
+        window.onload = function() {
+            const storedTodos = JSON.parse(localStorage.getItem('todos')) || [];
+            storedTodos.forEach(todoText => {
+                addTodoToDOM(todoText);
+            });
+        };
 
         function addTodo() {
-            const input = document.getElementById('todo-input');
             const todoText = input.value.trim();
             if (todoText === '') {
                 alert('Tugas tidak boleh kosong! 🌼');
                 return;
             }
+            addTodoToDOM(todoText);
+            saveTodo(todoText);
+            input.value = '';
+        }
 
-            const todoList = document.getElementById('todo-list');
+        function addTodoToDOM(todoText) {
             const todoItem = document.createElement('li');
             todoItem.className = 'todo-item';
             todoItem.innerHTML = `
@@ -194,20 +197,47 @@
                 </div>
             `;
             todoList.appendChild(todoItem);
-            input.value = '';
         }
 
-        function checkTodo(button) {
-            const todoItem = button.parentElement.parentElement;
-            todoItem.classList.add('checked');
-            setTimeout(() => {
-                todoItem.remove();
-            }, 800);
+        function saveTodo(todoText) {
+            const todos = JSON.parse(localStorage.getItem('todos')) || [];
+            todos.push(todoText);
+            localStorage.setItem('todos', JSON.stringify(todos));
         }
 
         function deleteTodo(button) {
             const todoItem = button.parentElement.parentElement;
+            const todoText = todoItem.querySelector('span').innerText.replace('💖 ', '').trim();
             todoItem.remove();
+            removeTodoFromStorage(todoText);
+        }
+
+        function checkTodo(button) {
+            const todoItem = button.parentElement.parentElement;
+            const todoText = todoItem.querySelector('span').innerText.replace('💖 ', '').trim();
+            todoItem.classList.add('checked');
+            setTimeout(() => {
+                todoItem.remove();
+                removeTodoFromStorage(todoText);
+            }, 800);
+        }
+
+        function removeTodoFromStorage(todoText) {
+            let todos = JSON.parse(localStorage.getItem('todos')) || [];
+            todos = todos.filter(t => t !== todoText);
+            localStorage.setItem('todos', JSON.stringify(todos));
+        }
+
+        // Floating emoji confetti
+        const emojis = ['🍭', '🍬', '🎉', '🌈', '🎀', '🧁', '🦄', '✨', '🎨', '🍓', '🌟', '🌼'];
+        for (let i = 0; i < 40; i++) {
+            const confetti = document.createElement('div');
+            confetti.classList.add('confetti');
+            confetti.innerText = emojis[Math.floor(Math.random() * emojis.length)];
+            confetti.style.left = Math.random() * 100 + "vw";
+            confetti.style.animationDuration = (5 + Math.random() * 5) + "s";
+            confetti.style.fontSize = (16 + Math.random() * 20) + "px";
+            document.body.appendChild(confetti);
         }
     </script>
 
