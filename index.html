@@ -157,78 +157,13 @@
     <div class="todo-container">
         <p style="font-size: 1.2em;">🌟 Lakukan semua dengan smile with HappyDoo! 🍓</p>
 
-        <input type="text" id="todo-input" placeholder="🎨 how was your day..." />
+        <input type="text" id="todo-input" placeholder="🎨 how was your day...">
         <button onclick="addTodo()">➕ Tambah</button>
         <ul class="todo-list" id="todo-list"></ul>
     </div>
 
     <!-- Floating Emoji Confetti -->
     <script>
-        const todoList = document.getElementById('todo-list');
-        const input = document.getElementById('todo-input');
-
-        // Ambil data dari localStorage saat halaman dibuka
-        window.onload = function() {
-            const storedTodos = JSON.parse(localStorage.getItem('todos')) || [];
-            storedTodos.forEach(todoText => {
-                addTodoToDOM(todoText);
-            });
-        };
-
-        function addTodo() {
-            const todoText = input.value.trim();
-            if (todoText === '') {
-                alert('Tugas tidak boleh kosong! 🌼');
-                return;
-            }
-            addTodoToDOM(todoText);
-            saveTodo(todoText);
-            input.value = '';
-        }
-
-        function addTodoToDOM(todoText) {
-            const todoItem = document.createElement('li');
-            todoItem.className = 'todo-item';
-            todoItem.innerHTML = `
-                <span>💖 ${todoText}</span>
-                <div>
-                    <button class="check-btn" onclick="checkTodo(this)">✅</button>
-                    <button class="delete-btn" onclick="deleteTodo(this)">❌</button>
-                </div>
-            `;
-            todoList.appendChild(todoItem);
-        }
-
-        function saveTodo(todoText) {
-            const todos = JSON.parse(localStorage.getItem('todos')) || [];
-            todos.push(todoText);
-            localStorage.setItem('todos', JSON.stringify(todos));
-        }
-
-        function deleteTodo(button) {
-            const todoItem = button.parentElement.parentElement;
-            const todoText = todoItem.querySelector('span').innerText.replace('💖 ', '').trim();
-            todoItem.remove();
-            removeTodoFromStorage(todoText);
-        }
-
-        function checkTodo(button) {
-            const todoItem = button.parentElement.parentElement;
-            const todoText = todoItem.querySelector('span').innerText.replace('💖 ', '').trim();
-            todoItem.classList.add('checked');
-            setTimeout(() => {
-                todoItem.remove();
-                removeTodoFromStorage(todoText);
-            }, 800);
-        }
-
-        function removeTodoFromStorage(todoText) {
-            let todos = JSON.parse(localStorage.getItem('todos')) || [];
-            todos = todos.filter(t => t !== todoText);
-            localStorage.setItem('todos', JSON.stringify(todos));
-        }
-
-        // Floating emoji confetti
         const emojis = ['🍭', '🍬', '🎉', '🌈', '🎀', '🧁', '🦄', '✨', '🎨', '🍓', '🌟', '🌼'];
         for (let i = 0; i < 40; i++) {
             const confetti = document.createElement('div');
@@ -239,6 +174,73 @@
             confetti.style.fontSize = (16 + Math.random() * 20) + "px";
             document.body.appendChild(confetti);
         }
+
+        function saveTodos() {
+            const todos = [];
+            document.querySelectorAll('.todo-item span').forEach(span => {
+                todos.push(span.innerText);
+            });
+            localStorage.setItem('happydoo-todos', JSON.stringify(todos));
+        }
+
+        function loadTodos() {
+            const todos = JSON.parse(localStorage.getItem('happydoo-todos'));
+            if (!todos) return;
+            const todoList = document.getElementById('todo-list');
+            todos.forEach(todoText => {
+                const todoItem = document.createElement('li');
+                todoItem.className = 'todo-item';
+                todoItem.innerHTML = `
+                    <span>💖 ${todoText}</span>
+                    <div>
+                        <button class="check-btn" onclick="checkTodo(this)">✅</button>
+                        <button class="delete-btn" onclick="deleteTodo(this)">❌</button>
+                    </div>
+                `;
+                todoList.appendChild(todoItem);
+            });
+        }
+
+        function addTodo() {
+            const input = document.getElementById('todo-input');
+            const todoText = input.value.trim();
+            if (todoText === '') {
+                alert('Tugas tidak boleh kosong! 🌼');
+                return;
+            }
+
+            const todoList = document.getElementById('todo-list');
+            const todoItem = document.createElement('li');
+            todoItem.className = 'todo-item';
+            todoItem.innerHTML = `
+                <span>💖 ${todoText}</span>
+                <div>
+                    <button class="check-btn" onclick="checkTodo(this)">✅</button>
+                    <button class="delete-btn" onclick="deleteTodo(this)">❌</button>
+                </div>
+            `;
+            todoList.appendChild(todoItem);
+            input.value = '';
+
+            saveTodos();
+        }
+
+        function checkTodo(button) {
+            const todoItem = button.parentElement.parentElement;
+            todoItem.classList.add('checked');
+            setTimeout(() => {
+                todoItem.remove();
+                saveTodos();
+            }, 800);
+        }
+
+        function deleteTodo(button) {
+            const todoItem = button.parentElement.parentElement;
+            todoItem.remove();
+            saveTodos();
+        }
+
+        window.onload = loadTodos;
     </script>
 
 </body>
